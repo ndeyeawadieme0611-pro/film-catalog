@@ -27,7 +27,7 @@ Créez un fichier `.env` à la racine du projet :
 
 ```env
 DATABASE_URL=postgresql://filmuser:filmpassword@localhost:5432/filmcatalog
-TMDB_API_KEY=bd75cd88347f751f04c0ab2fcff7ba80
+TMDB_API_KEY=06ebe9631fe614b98540c2bd2eb6641f
 TMDB_BASE_URL=https://api.themoviedb.org/3
 ```
 
