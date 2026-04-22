@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine, Base
+import app.models
 
 app = FastAPI(
     title="Film Catalog API",
@@ -7,10 +9,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS : permet au front-end React de communiquer avec le back-end
+# Crée toutes les tables dans PostgreSQL au démarrage
+Base.metadata.create_all(bind=engine)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # adresse du front-end Vite
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
