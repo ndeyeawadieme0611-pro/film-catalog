@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: film-catalog_backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: postgresql://filmuser:filmpassword@postgres:5432/filmcatalog
+            - name: TMDB_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: filmcatalog-config
+                  key: TMDB_BASE_URL
+            - name: TMDB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: filmcatalog-secret
+                  key: TMDB_API_KEY
