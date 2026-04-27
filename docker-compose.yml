@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:16
+    container_name: filmcatalog-postgres
+    environment:
+      POSTGRES_DB: filmcatalog
+      POSTGRES_USER: filmuser
+      POSTGRES_PASSWORD: filmpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U filmuser -d filmcatalog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (cache)
+  redis:
+    image: redis:7-alpine
+    container_name: filmcatalog-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend FastAPI
+  backend:
+    build: ./backend
+    container_name: filmcatalog-backend
+    environment:
+      DATABASE_URL: postgresql://filmuser:filmpassword@postgres:5432/filmcatalog
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      TMDB_BASE_URL: ${TMDB_BASE_URL}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  # Frontend React
+  frontend:
+    build: ./frontend
+    container_name: filmcatalog-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
