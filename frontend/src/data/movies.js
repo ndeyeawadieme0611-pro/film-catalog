@@ -1,0 +1,51 @@
+// ─── Movie data (fallback si le back-end n'est pas disponible) ───────────────
+// En production, les données viennent de /api/movies
+
+const B = 'https://image.tmdb.org/t/p/w500'
+
+export const MOVIES = [
+  { id:1,  title:'The Shawshank Redemption', year:1994, genre:'Drama',     rating:9.3, votes:'2.8M', runtime:'2h 22min', director:'Frank Darabont',        cast:['Tim Robbins','Morgan Freeman','Bob Gunton'],            overview:"Deux hommes emprisonnés se lient d'amitié au fil des années, trouvant la rédemption à travers des actes de dignité commune.", poster:`${B}/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg` },
+  { id:2,  title:'The Godfather',            year:1972, genre:'Drama',     rating:9.2, votes:'1.9M', runtime:'2h 55min', director:'Francis Ford Coppola',    cast:['Marlon Brando','Al Pacino','James Caan'],                overview:"Le patriarche vieillissant d'une famille criminelle transfère le contrôle de son empire à son fils réticent.",                 poster:`${B}/3bhkrj58Vtu7enYsLegHnDmZ0Rb.jpg` },
+  { id:3,  title:'The Dark Knight',          year:2008, genre:'Action',    rating:9.0, votes:'2.6M', runtime:'2h 32min', director:'Christopher Nolan',       cast:['Christian Bale','Heath Ledger','Aaron Eckhart'],         overview:"Quand le Joker sème le chaos à Gotham, Batman doit affronter l'un des plus grands tests psychologiques de sa vie.",          poster:`${B}/qJ2tW6WMUDux911r6m7haRef0WH.jpg` },
+  { id:4,  title:'Pulp Fiction',             year:1994, genre:'Thriller',  rating:8.9, votes:'2.1M', runtime:'2h 34min', director:'Quentin Tarantino',       cast:['John Travolta','Uma Thurman','Samuel L. Jackson'],       overview:"Les vies de deux hitmen, un boxeur et un gangster s'entremêlent dans quatre histoires de violence et rédemption.",          poster:`${B}/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg` },
+  { id:5,  title:'Inception',               year:2010, genre:'Sci-Fi',    rating:8.8, votes:'2.4M', runtime:'2h 28min', director:'Christopher Nolan',       cast:['Leonardo DiCaprio','Joseph Gordon-Levitt','Elliot Page'],overview:"Un voleur spécialisé dans l'extraction de secrets via le rêve reçoit la mission inverse : planter une idée dans un esprit.", poster:`${B}/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg` },
+  { id:6,  title:'Fight Club',              year:1999, genre:'Drama',     rating:8.8, votes:'2.2M', runtime:'2h 19min', director:'David Fincher',           cast:['Brad Pitt','Edward Norton','Helena Bonham Carter'],      overview:"Un employé de bureau insomniaque et un fabricant de savon forment un club de combat clandestin.", poster:`${B}/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg` },
+  { id:7,  title:'Interstellar',            year:2014, genre:'Sci-Fi',    rating:8.7, votes:'1.9M', runtime:'2h 49min', director:'Christopher Nolan',       cast:['Matthew McConaughey','Anne Hathaway','Jessica Chastain'],overview:"Une équipe d'explorateurs voyage à travers un trou de ver pour assurer la survie de l'humanité.",                           poster:`${B}/gEU2QniE6E77NI6lZi6n7x43B2B.jpg` },
+  { id:8,  title:'The Matrix',              year:1999, genre:'Sci-Fi',    rating:8.7, votes:'1.8M', runtime:'2h 16min', director:'Lana Wachowski',          cast:['Keanu Reeves','Laurence Fishburne','Carrie-Anne Moss'],  overview:"Un programmeur découvre que la réalité est une simulation et rejoint une rébellion.",                poster:`${B}/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg` },
+  { id:9,  title:'Goodfellas',              year:1990, genre:'Drama',     rating:8.7, votes:'1.1M', runtime:'2h 26min', director:'Martin Scorsese',         cast:['Ray Liotta','Robert De Niro','Joe Pesci'],               overview:"L'histoire d'Henry Hill et sa vie dans la mafia, racontée avec une précision cinématographique.",                poster:`${B}/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg` },
+  { id:10, title:"Schindler's List",        year:1993, genre:'Drama',     rating:9.0, votes:'1.4M', runtime:'3h 15min', director:'Steven Spielberg',        cast:['Liam Neeson','Ralph Fiennes','Ben Kingsley'],            overview:"En Pologne occupée, un industriel sauve plus de mille Juifs en les employant dans ses usines.", poster:`${B}/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg` },
+  { id:11, title:'Parasite',               year:2019, genre:'Thriller',  rating:8.5, votes:'900K',  runtime:'2h 12min', director:'Bong Joon-ho',            cast:['Song Kang-ho','Lee Sun-kyun','Cho Yeo-jeong'],           overview:"La discrimination de classe menace la relation symbiotique entre la riche famille Park et les Kim démunis.",                  poster:`${B}/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg` },
+  { id:12, title:'Dune',                   year:2021, genre:'Sci-Fi',    rating:8.0, votes:'800K',  runtime:'2h 35min', director:'Denis Villeneuve',        cast:['Timothée Chalamet','Rebecca Ferguson','Oscar Isaac'],    overview:"Le fils d'une famille noble est chargé de protéger la ressource la plus précieuse de la galaxie.",  poster:`${B}/d5NXSklpcvwN3Y1klI-2m7MAutS.jpg` },
+  { id:13, title:'Top Gun: Maverick',      year:2022, genre:'Action',    rating:8.3, votes:'650K',  runtime:'2h 11min', director:'Joseph Kosinski',         cast:['Tom Cruise','Miles Teller','Jennifer Connelly'],         overview:"Pete Mitchell repousse les limites en tant qu'instructeur d'une nouvelle génération de pilotes.", poster:`${B}/62HCnUTziyWcpDaBO2i1DX17ljH.jpg` },
+  { id:14, title:'Avengers: Endgame',      year:2019, genre:'Action',    rating:8.4, votes:'1.2M',  runtime:'3h 1min',  director:'Anthony Russo',           cast:['Robert Downey Jr.','Chris Evans','Mark Ruffalo'],        overview:"Les Avengers se rassemblent pour annuler les actions de Thanos et restaurer l'univers.",                   poster:`${B}/or06FN3Dka5tukK1e9sl16pB3iy.jpg` },
+  { id:15, title:'The Silence of the Lambs',year:1991,genre:'Thriller',  rating:8.6, votes:'1.5M',  runtime:'1h 58min', director:'Jonathan Demme',          cast:['Jodie Foster','Anthony Hopkins','Scott Glenn'],          overview:"Une jeune agent FBI doit recevoir l'aide d'un tueur en série pour attraper un autre meurtrier.", poster:`${B}/uS9m8OBk1A8eM9I042bx8XXpqAq.jpg` },
+  { id:16, title:'Forrest Gump',           year:1994, genre:'Drama',     rating:8.8, votes:'2.1M',  runtime:'2h 22min', director:'Robert Zemeckis',         cast:['Tom Hanks','Robin Wright','Gary Sinise'],                overview:"Les événements majeurs des États-Unis vus à travers les yeux d'un homme simple au grand cœur.",              poster:`${B}/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg` },
+  { id:17, title:'The Batman',             year:2022, genre:'Action',    rating:7.8, votes:'780K',  runtime:'2h 56min', director:'Matt Reeves',             cast:['Robert Pattinson','Zoë Kravitz','Paul Dano'],            overview:"Batman mène l'enquête sur la corruption cachée de Gotham en traquant un tueur en série.", poster:`${B}/74xTEgt7R36Fpooo50r9T25onhq.jpg` },
+  { id:18, title:'Everything Everywhere', year:2022, genre:'Sci-Fi',    rating:7.8, votes:'550K',  runtime:'2h 19min', director:'Daniels',                 cast:['Michelle Yeoh','Stephanie Hsu','Ke Huy Quan'],           overview:"Une immigrante doit explorer des univers parallèles pour sauver ce qui lui importe le plus.",     poster:`${B}/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg` },
+  { id:19, title:'Get Out',               year:2017, genre:'Horror',    rating:7.7, votes:'620K',  runtime:'1h 44min', director:'Jordan Peele',            cast:['Daniel Kaluuya','Allison Williams','Bradley Whitford'],  overview:"Un jeune homme rend visite aux parents de sa petite amie et découvre un secret troublant.", poster:`${B}/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg` },
+  { id:20, title:'A Quiet Place',         year:2018, genre:'Horror',    rating:7.5, votes:'480K',  runtime:'1h 30min', director:'John Krasinski',          cast:['Emily Blunt','John Krasinski','Millicent Simmonds'],     overview:"Dans un monde post-apocalyptique, une famille survit en silence face à des créatures qui chassent au son.",            poster:`${B}/nAU74GmpUk7t5iklEp3bufwDq4n.jpg` },
+  { id:21, title:'Spirited Away',         year:2001, genre:'Animation', rating:8.6, votes:'730K',  runtime:'2h 5min',  director:'Hayao Miyazaki',          cast:['Daveigh Chase','Suzanne Pleshette','Miyu Irino'],        overview:"Une fillette de 10 ans erre dans un monde gouverné par des dieux, sorcières et esprits.", poster:`${B}/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg` },
+  { id:22, title:'The Lion King',         year:1994, genre:'Animation', rating:8.5, votes:'1.0M',  runtime:'1h 28min', director:'Roger Allers',            cast:['Matthew Broderick','Jeremy Irons','James Earl Jones'],   overview:"Le prince lion Simba doit affronter son oncle amer qui a pris le contrôle du trône.",                              poster:`${B}/sKCr78MXSLixwmZ8DyJLrpMsd15.jpg` },
+  { id:23, title:'The Grand Budapest Hotel',year:2014,genre:'Comedy',   rating:8.1, votes:'780K',  runtime:'1h 39min', director:'Wes Anderson',            cast:['Ralph Fiennes','F. Murray Abraham','Mathieu Amalric'],   overview:"Un légendaire concierge d'hôtel et son jeune protégé dans l'Europe d'entre-deux-guerres.", poster:`${B}/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg` },
+  { id:24, title:'The Truman Show',       year:1998, genre:'Comedy',    rating:8.2, votes:'1.1M',  runtime:'1h 43min', director:'Peter Weir',              cast:['Jim Carrey','Ed Harris','Laura Linney'],                 overview:"Un agent d'assurance découvre que toute sa vie est en réalité une émission de téléréalité.",                                 poster:`${B}/vuza0WqY239yBXOadKlGwJsZJFE.jpg` },
+  { id:25, title:'Blade Runner 2049',     year:2017, genre:'Sci-Fi',    rating:8.0, votes:'600K',  runtime:'2h 44min', director:'Denis Villeneuve',        cast:['Ryan Gosling','Harrison Ford','Ana de Armas'],           overview:"Un jeune blade runner découvre un secret enfoui depuis longtemps qui le pousse à retrouver l'ancien Deckard.", poster:`${B}/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg` },
+]
+
+export const GENRES = ['All', 'Action', 'Sci-Fi', 'Drama', 'Thriller', 'Comedy', 'Horror', 'Animation']
+
+export const GENRE_COLORS = {
+  Action:    '#3d7cff',
+  'Sci-Fi':  '#00c8e0',
+  Drama:     '#8b5cf6',
+  Thriller:  '#f4a320',
+  Comedy:    '#00d9b0',
+  Horror:    '#a855f7',
+  Animation: '#00c8e0',
+}
+
+export const STATS = {
+  total:       25,
+  genres:      7,
+  avgRating:   8.5,
+  addedThisMonth: 5,
+}
