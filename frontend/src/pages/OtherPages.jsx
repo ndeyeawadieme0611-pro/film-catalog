@@ -830,4 +830,4 @@ TrendingPage.propTypes = {
   onToggleFav: PropTypes.func.isRequired,
 };
 
-export { SettingsPage } from "./SettingsPage";
+export { SettingsPage } from "./Settingspage";
