@@ -299,7 +299,9 @@ export function SettingsPage({ user, onLogout, userId }) {
   };
 
   const handleChangePassword = async (current, newPassword) => {
-    const res = await fetch("/auth/change-password", {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+    const res = await fetch(`${API_URL}/auth/change-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -310,9 +312,9 @@ export function SettingsPage({ user, onLogout, userId }) {
         new_password: newPassword,
       }),
     });
+
     if (!res.ok) throw new Error("Mot de passe actuel incorrect.");
   };
-
   return (
     <div className="fade-in" style={{ maxWidth: "620px" }}>
       {/* ── Compte ── */}

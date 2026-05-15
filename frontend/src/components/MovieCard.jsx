@@ -135,7 +135,6 @@ export default function MovieCard({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        borderRadius: "14px",
         overflow: "visible",
         position: "relative",
         background: hover
