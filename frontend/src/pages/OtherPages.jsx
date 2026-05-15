@@ -1,11 +1,42 @@
+import { useState, useEffect, useRef } from "react";
 import MovieCard from '../components/MovieCard'
 import { EmptyState } from '../components/Loader'
-import { MOVIES } from '../data/movies'
+import { fetchMovies } from '../services/api'
 import PropTypes from 'prop-types'
+
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
+
+function normalizeMovie(m) {
+  return {
+    id: m.id,
+    title: m.title,
+    year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
+    rating: m.vote_average || 0,
+    votes: m.vote_count || 0,
+    poster: m.poster_path
+      ? `${IMAGE_BASE_URL}${m.poster_path}`
+      : '/placeholder-poster.png',
+    overview: m.overview || '',
+    genre: 'TMDB',
+    raw: m,
+  }
+}
 
 // ── Favoris ───────────────────────────────────────────────────────────────────
 export function FavoritesPage({ favorites, onMovieClick, onToggleFav }) {
-  const favMovies = MOVIES.filter(m => favorites.includes(m.id))
+  const [movies, setMovies] = useState([])
+
+  useEffect(() => {
+    async function loadMovies() {
+      const data = await fetchMovies({ page: 1 })
+      const list = data.movies || data.results || []
+      setMovies(list.map(normalizeMovie))
+    }
+
+    loadMovies()
+  }, [])
+
+  const favMovies = movies.filter(m => favorites.includes(m.id))
 
   if (favMovies.length === 0) {
     return (
@@ -25,8 +56,13 @@ export function FavoritesPage({ favorites, onMovieClick, onToggleFav }) {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '18px' }}>
         {favMovies.map(m => (
-          <MovieCard key={m.id} movie={m} onClick={() => onMovieClick(m)}
-            isFav={true} onToggleFav={onToggleFav} />
+          <MovieCard
+            key={m.id}
+            movie={m}
+            onClick={() => onMovieClick(m)}
+            isFav={true}
+            onToggleFav={onToggleFav}
+          />
         ))}
       </div>
     </div>
@@ -41,8 +77,20 @@ FavoritesPage.propTypes = {
 
 // ── Tendances ─────────────────────────────────────────────────────────────────
 export function TrendingPage({ onMovieClick, favorites, onToggleFav }) {
-  const trending = [...MOVIES].sort((a, b) => parseInt(b.votes) - parseInt(a.votes))
-  const top  = trending[0]
+  const [movies, setMovies] = useState([])
+
+  useEffect(() => {
+    async function loadMovies() {
+      const data = await fetchMovies({ page: 1 })
+      const list = data.movies || data.results || []
+      setMovies(list.map(normalizeMovie))
+    }
+
+    loadMovies()
+  }, [])
+
+  const trending = [...movies].sort((a, b) => Number(b.votes) - Number(a.votes))
+  const top = trending[0]
   const rest = trending.slice(1)
 
   return (
@@ -68,10 +116,10 @@ export function TrendingPage({ onMovieClick, favorites, onToggleFav }) {
               }}>🔥 N°1 DES TENDANCES</div>
               <div style={{ fontSize: '32px', fontWeight: '700', lineHeight: 1.2, marginBottom: '10px' }}>{top.title}</div>
               <div style={{ fontSize: '13px', color: 'rgba(200,210,255,0.6)', marginBottom: '14px', lineHeight: 1.6 }}>
-                {top.overview.slice(0, 130)}…
+                {(top.overview || '').slice(0, 130)}…
               </div>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center', fontSize: '13px', color: 'rgba(200,210,255,0.5)' }}>
-                <span style={{ color: '#f4a320', fontWeight: '700' }}>★ {top.rating}</span>
+                <span style={{ color: '#f4a320', fontWeight: '700' }}>★ {top.rating?.toFixed(1)}</span>
                 <span>·</span><span>{top.year}</span>
                 <span>·</span><span>{top.genre}</span>
                 <span>·</span><span>{top.votes} votes</span>
@@ -84,8 +132,13 @@ export function TrendingPage({ onMovieClick, favorites, onToggleFav }) {
       <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '18px' }}>Autres tendances</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '18px' }}>
         {rest.map(m => (
-          <MovieCard key={m.id} movie={m} onClick={() => onMovieClick(m)}
-            isFav={favorites.includes(m.id)} onToggleFav={onToggleFav} />
+          <MovieCard
+            key={m.id}
+            movie={m}
+            onClick={() => onMovieClick(m)}
+            isFav={favorites.includes(m.id)}
+            onToggleFav={onToggleFav}
+          />
         ))}
       </div>
     </div>
@@ -140,7 +193,7 @@ export function SettingsPage() {
           <span style={{ fontSize: '12px', color: 'rgba(200,210,255,0.4)' }}>React · FastAPI · PostgreSQL · Docker</span>
         </SettingRow>
         <SettingRow label="Films" sub="Catalogue actuel">
-          <span style={{ fontSize: '14px', fontWeight: '700', color: '#3d7cff' }}>25</span>
+         <span style={{ fontSize: '14px', fontWeight: '700', color: '#3d7cff' }}>TMDB</span>
         </SettingRow>
       </SettingSection>
     </div>

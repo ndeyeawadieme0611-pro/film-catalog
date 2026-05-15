@@ -2,11 +2,10 @@ import axios from 'axios'
 import { MOVIES } from '../data/movies'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   timeout: 8000,
 })
 
-// ── Intercepteur : log les erreurs en dev ────────────────────────────────────
 api.interceptors.response.use(
   res => res,
   err => {
@@ -17,69 +16,38 @@ api.interceptors.response.use(
   }
 )
 
-// ── Films ────────────────────────────────────────────────────────────────────
-
-/**
- * Récupère la liste des films depuis le back-end.
- * Fallback sur les données locales si le back-end est indisponible.
- */
 export async function fetchMovies(params = {}) {
   try {
-    const { data } = await api.get('/movies', { params })
-    return data
-  } catch {
-    // Fallback : filtrage/tri côté client sur les données mockées
-    let list = [...MOVIES]
-    if (params.genre && params.genre !== 'All') list = list.filter(m => m.genre === params.genre)
-    if (params.search) {
-      const q = params.search.toLowerCase()
-      list = list.filter(m =>
-        m.title.toLowerCase().includes(q) ||
-        m.director?.toLowerCase().includes(q)
-      )
+    const page = params.page || 1
+    const { data } = await api.get('/films/popular', { params: { page } })
+
+    return {
+      movies: data.results || [],
+      total: data.total_results || 0,
+      page: data.page,
+      totalPages: data.total_pages,
     }
-    if (params.year) list = list.filter(m => String(m.year) === String(params.year))
-    list.sort((a, b) => {
-      if (params.sort === 'year')  return b.year - a.year
-      if (params.sort === 'title') return a.title.localeCompare(b.title)
-      return b.rating - a.rating
-    })
-    return { movies: list, total: list.length }
+  } catch {
+    return { movies: MOVIES, total: MOVIES.length }
   }
 }
 
-/**
- * Récupère un film par son id.
- */
 export async function fetchMovie(id) {
   try {
-    const { data } = await api.get(`/movies/${id}`)
+    const { data } = await api.get(`/films/${id}`)
     return data
   } catch {
     return MOVIES.find(m => m.id === Number(id)) || null
   }
 }
 
-/**
- * Récupère les films similaires (même genre).
- */
-export async function fetchSimilar(id) {
+export async function searchMovies(query, page = 1) {
   try {
-    const { data } = await api.get(`/movies/${id}/similar`)
-    return data
-  } catch {
-    const movie = MOVIES.find(m => m.id === Number(id))
-    if (!movie) return []
-    return MOVIES.filter(m => m.genre === movie.genre && m.id !== movie.id).slice(0, 6)
-  }
-}
+    const { data } = await api.get('/films/search', {
+      params: { query, page },
+    })
 
-// ── Recherche ────────────────────────────────────────────────────────────────
-
-export async function searchMovies(query) {
-  try {
-    const { data } = await api.get('/movies/search', { params: { q: query } })
-    return data
+    return data.results || []
   } catch {
     const q = query.toLowerCase()
     return MOVIES.filter(m =>
@@ -90,12 +58,23 @@ export async function searchMovies(query) {
   }
 }
 
-// ── Stats ────────────────────────────────────────────────────────────────────
+export async function fetchSimilar(id) {
+  return []
+}
 
 export async function fetchStats() {
   try {
-    const { data } = await api.get('/stats')
-    return data
+    const data = await fetchMovies()
+    const movies = data.movies || []
+
+    return {
+      total: data.total || movies.length,
+      genres: 0,
+      avgRating: movies.length
+        ? (movies.reduce((acc, m) => acc + (m.vote_average || 0), 0) / movies.length).toFixed(1)
+        : 0,
+      topGenre: 'N/A',
+    }
   } catch {
     return {
       total: MOVIES.length,
@@ -106,7 +85,6 @@ export async function fetchStats() {
   }
 }
 
-// ── Favoris (localStorage comme fallback si pas de back-end auth) ─────────────
 const FAV_KEY = 'cinedb_favorites'
 
 export function getFavoritesLocal() {
@@ -119,3 +97,41 @@ export function saveFavoritesLocal(ids) {
 }
 
 export default api
+
+export async function discoverMovies({ page = 1, year, genre, person } = {}) {
+  const params = { page }
+
+  if (year && year !== 'Toutes') params.year = year
+  if (genre && genre !== 'Tous') params.genre = genre
+  if (person && person.trim()) params.person = person.trim()
+
+  const { data } = await api.get('/films/discover', { params })
+
+  return {
+    movies: data.results || [],
+    total: data.total_results || 0,
+    page: data.page,
+    totalPages: data.total_pages,
+  }
+}
+
+export async function fetchGenres() {
+  const { data } = await api.get('/films/genres')
+
+  return [
+    { value: 'Tous', label: 'Tous' },
+    ...(data.genres || []).map(g => ({
+      value: g.id,
+      label: g.name,
+    })),
+  ]
+}
+
+export async function fetchYears() {
+  const { data } = await api.get('/films/years')
+
+  return [
+    'Toutes',
+    ...(data.years || []).map(String),
+  ]
+}

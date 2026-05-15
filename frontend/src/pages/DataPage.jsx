@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar,
 } from 'recharts'
-import { MOVIES } from '../data/movies'
-import { fetchStats } from '../services/api'
+import { fetchStats, fetchMovies } from '../services/api'
 
 // ── Données graphiques ────────────────────────────────────────────────────────
 const monthData = [
@@ -61,15 +60,31 @@ function StatCard({ label, value, icon, color, change }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function DataPage({ favorites, onMovieClick }) {
   const [stats, setStats] = useState(null)
-  const topMovies = [...MOVIES].sort((a, b) => b.rating - a.rating).slice(0, 5)
+  const [topMovies, setTopMovies] = useState([])
+  useEffect(() => {
+    async function loadData() {
+      const statsData = await fetchStats()
+      setStats(statsData)
 
-  useEffect(() => { fetchStats().then(setStats) }, [])
+      const moviesData = await fetchMovies({ page: 1 })
+      const movies = moviesData.movies || []
+
+      setTopMovies(
+        movies
+          .map(normalizeMovie)
+          .sort((a, b) => b.rating - a.rating)
+          .slice(0, 5)
+      )
+    }
+
+    loadData()
+  }, [])
 
   const STAT_CARDS = [
-    { label:'Films total',   value: stats?.total ?? MOVIES.length, icon:'🎬', color:'#3d7cff', change:'+5 ce mois' },
-    { label:'Genres',        value: stats?.genres ?? 7,             icon:'✦',  color:'#8b5cf6', change:'catégories' },
-    { label:'Note moyenne',  value: stats?.avgRating ?? '8.5',      icon:'★',  color:'#f4a320', change:'/10 IMDb' },
-    { label:'Mes favoris',   value: favorites.length,               icon:'♥',  color:'#00d9b0', change:'dans ma liste' },
+    { label:'Films total',   value: stats?.total ?? 0, icon:'🎬', color:'#3d7cff', change:'+5 ce mois' },
+    { label:'Genres',        value: stats?.genres ?? 0, icon:'✦',  color:'#8b5cf6', change:'catégories' },
+    { label:'Note moyenne',  value: stats?.avgRating ?? '0', icon:'★', color:'#f4a320', change:'/10 TMDB' },
+    { label:'Mes favoris',   value: favorites.length, icon:'♥', color:'#00d9b0', change:'dans ma liste' },
   ]
 
   return (
@@ -156,4 +171,20 @@ export default function DataPage({ favorites, onMovieClick }) {
       </div>
     </div>
   )
+}
+
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'
+
+function normalizeMovie(m) {
+  return {
+    id: m.id,
+    title: m.title,
+    year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
+    rating: m.vote_average || 0,
+    poster: m.poster_path
+      ? `${IMAGE_BASE_URL}${m.poster_path}`
+      : '/placeholder-poster.png',
+    genre: 'TMDB',
+    raw: m,
+  }
 }

@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { MOVIES, GENRES } from "../data/movies";
+import { fetchMovies } from "../services/api";
 import {
   FilmIcon,
   HeartIcon,
@@ -14,6 +14,36 @@ import {
   HeartIcon as HeartSolid,
   StarIcon as StarSolid,
 } from "@heroicons/react/24/solid";
+
+const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+
+const GENRES = [
+  { value: 28, label: "Action" },
+  { value: 878, label: "Sci-Fi" },
+  { value: 18, label: "Drama" },
+  { value: 53, label: "Thriller" },
+  { value: 35, label: "Comedy" },
+  { value: 27, label: "Horror" },
+  { value: 16, label: "Animation" },
+];
+
+function normalizeMovie(m) {
+  const genreId = m.genre_ids?.[0] || null;
+
+  return {
+    id: m.id,
+    title: m.title,
+    year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
+    rating: m.vote_average || 0,
+    poster: m.poster_path
+      ? `${IMAGE_BASE_URL}${m.poster_path}`
+      : "/placeholder-poster.png",
+    overview: m.overview,
+    genre_ids: m.genre_ids || [],
+    genre: GENRES.find((g) => g.value === genreId)?.label || "Film",
+    raw: m,
+  };
+}
 
 // ── Poster Card ───────────────────────────────────────────────────────────────
 function PosterCard({ movie, onClick, isFav, onToggleFav }) {
@@ -538,16 +568,27 @@ function HeroBanner({ movie, onMovieClick }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function HomePage({ onMovieClick, favorites, onToggleFav }) {
-  const hero = [...MOVIES].sort((a, b) => b.rating - a.rating)[0];
-  const top = [...MOVIES].sort((a, b) => b.rating - a.rating).slice(0, 20);
-  const genreGroups = GENRES.filter((g) => g !== "All")
-    .map((genre) => ({
-      genre,
-      movies: MOVIES.filter((m) => m.genre === genre).sort(
-        (a, b) => b.rating - a.rating,
-      ),
-    }))
-    .filter((g) => g.movies.length > 0);
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    async function loadMovies() {
+      const data = await fetchMovies({ page: 1 });
+      const list = data.movies || data.results || [];
+      setMovies(list.map(normalizeMovie));
+    }
+
+    loadMovies();
+  }, []);
+
+  const hero = [...movies].sort((a, b) => b.rating - a.rating)[0];
+  const top = [...movies].sort((a, b) => b.rating - a.rating).slice(0, 20);
+
+  const genreGroups = GENRES.map((genre) => ({
+    genre: genre.label,
+    movies: movies
+      .filter((m) => m.genre_ids?.includes(genre.value))
+      .sort((a, b) => b.rating - a.rating),
+  })).filter((g) => g.movies.length > 0);
 
   return (
     <div style={{ width: "100%", minWidth: 0, overflowX: "hidden" }}>

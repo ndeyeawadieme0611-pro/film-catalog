@@ -1,13 +1,20 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import {
+  fetchMovies,
+  searchMovies,
+  discoverMovies,
+  fetchGenres,
+  fetchYears,
+} from "../services/api";
+
 import PropTypes from "prop-types";
 import MovieCard from "../components/MovieCard";
 import { EmptyState } from "../components/Loader";
-import { MOVIES } from "../data/movies";
+
 import {
   Squares2X2Icon,
   Bars3Icon,
   CalendarIcon,
-  AdjustmentsHorizontalIcon,
   XMarkIcon,
   HeartIcon,
   ChevronDownIcon,
@@ -19,26 +26,12 @@ import {
 } from "@heroicons/react/24/solid";
 
 /* ── Constantes ── */
-const GENRES = [
-  "Tous",
-  "Action",
-  "Sci-Fi",
-  "Drama",
-  "Thriller",
-  "Comedy",
-  "Horror",
-  "Animation",
-];
-const YEARS = [
-  "Toutes",
-  ...Array.from({ length: 30 }, (_, i) => String(2024 - i)),
-];
+
 const SORT_OPTIONS = [
   { value: "rating", label: "Note", Icon: StarSolid },
   { value: "year", label: "Année", Icon: CalendarIcon },
   { value: "title", label: "Titre", Icon: ChevronDownIcon },
 ];
-const PER_PAGE = 20;
 
 /* ── CustomSelect ── */
 function CustomSelect({ value, onChange, options }) {
@@ -307,8 +300,7 @@ function ListRow({ m, onClick, isFav, onToggleFav }) {
               fontSize: "11px",
             }}
           >
-            {m.genre}
-          </span>
+        Film</span>
         </div>
       </div>
 
@@ -353,6 +345,25 @@ function ListRow({ m, onClick, isFav, onToggleFav }) {
     </div>
   );
 }
+const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+
+function normalizeMovie(m) {
+  return {
+    id: m.id,
+    title: m.title,
+    year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
+    rating: m.vote_average || 0,
+    poster: m.poster_path
+      ? `${IMAGE_BASE_URL}${m.poster_path}`
+      : "/placeholder-poster.png",
+    overview: m.overview,
+    genre_ids: m.genre_ids || [],
+    genre: m.genre_ids?.[0] || null,
+    director: "",
+    cast: [],
+    raw: m,
+  };
+}
 
 /* ══════════════════════════════════════════
    PAGE PRINCIPALE
@@ -371,10 +382,74 @@ export default function CataloguePage({
   const [view, setView] = useState("grid");
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [apiTotalPages, setApiTotalPages] = useState(1);
+  const [genres, setGenres] = useState([{ value: "Tous", label: "Tous" }]);
+  const [years, setYears] = useState(["Toutes"]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+useEffect(() => {
+  setPage(1);
+}, [search, genre, year, excFut, sortBy]);
+
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadMovies() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let data;
+
+      if (search && search.trim()) {
+        data = await searchMovies(search.trim(), page);
+      } else {
+        data = await discoverMovies({
+          page,
+          year: year !== "Toutes" ? year : undefined,
+          genre: genre !== "Tous" ? genre : undefined,
+          person: person.trim() ? person.trim() : undefined,
+        });
+      }
+
+      const list = Array.isArray(data) ? data : data.movies || data.results || [];
+
+      if (!cancelled) {
+        setMovies(list.map(normalizeMovie));
+        setApiTotalPages(data.totalPages || data.total_pages || 1);
+      }
+    } catch {
+      if (!cancelled) {
+        setError("Impossible de charger les films.");
+        setMovies([]);
+      }
+    } finally {
+      if (!cancelled) setLoading(false);
+    }
+  }
+
+  loadMovies();
+
+  return () => {
+    cancelled = true;
+  };
+}, [search, page, genre, year, person]);
+
+useEffect(() => {
+  async function loadFilters() {
+    const [genresData, yearsData] = await Promise.all([
+      fetchGenres(),
+      fetchYears(),
+    ]);
+
+    setGenres(genresData);
+    setYears(yearsData);
+  }
+
+  loadFilters();
+}, []);
 
   const resetFilters = useCallback(() => {
     setGenre("Tous");
@@ -385,43 +460,30 @@ export default function CataloguePage({
   }, []);
 
   const filtered = useMemo(() => {
-    let list = [...MOVIES];
-    if (genre !== "Tous") list = list.filter((m) => m.genre === genre);
-    if (year !== "Toutes") list = list.filter((m) => String(m.year) === year);
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (m) =>
-          m.title.toLowerCase().includes(q) ||
-          m.director?.toLowerCase().includes(q),
-      );
+    let list = [...movies];
+
+    if (excFut) {
+      list = list.filter((m) => m.year <= new Date().getFullYear());
     }
-    if (person) {
-      const q = person.toLowerCase();
-      list = list.filter(
-        (m) =>
-          m.director?.toLowerCase().includes(q) ||
-          m.cast?.some((a) => a.toLowerCase().includes(q)),
-      );
-    }
-    if (excFut) list = list.filter((m) => m.year <= new Date().getFullYear());
+
     list.sort((a, b) =>
       sortBy === "rating"
         ? b.rating - a.rating
         : sortBy === "year"
-          ? b.year - a.year
+          ? (b.year || 0) - (a.year || 0)
           : a.title.localeCompare(b.title),
     );
-    return list;
-  }, [genre, year, search, person, excFut, sortBy]);
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const displayed = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+    return list;
+  }, [movies, excFut, sortBy]);
+
+  const totalPages = apiTotalPages;
+  const displayed = filtered;
 
   const activeBadges = [
     genre !== "Tous" && {
       key: "genre",
-      label: genre,
+      label: genres.find((g) => g.value === genre)?.label,
       clear: () => {
         setGenre("Tous");
         setPage(1);
@@ -559,7 +621,7 @@ export default function CataloguePage({
                     setGenre(v);
                     setPage(1);
                   }}
-                  options={GENRES}
+                  options={genres}
                 />
               </div>
 
@@ -582,7 +644,7 @@ export default function CataloguePage({
                     setYear(v);
                     setPage(1);
                   }}
-                  options={YEARS}
+                  options={years}
                 />
               </div>
 
@@ -800,7 +862,19 @@ export default function CataloguePage({
       </div>
 
       {/* ── Résultats ── */}
-      {filtered.length === 0 ? (
+      {loading && (
+        <div style={{ color: "rgba(200,210,255,0.6)", marginBottom: "20px" }}>
+          Chargement des films...
+        </div>
+      )}
+
+      {error && (
+        <div style={{ color: "#ff6b6b", marginBottom: "20px" }}>
+          {error}
+        </div>
+      )}
+
+      {!loading && filtered.length === 0 ? (
         <EmptyState subtitle="Essayez un autre terme ou genre" />
       ) : view === "grid" ? (
         <div
