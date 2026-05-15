@@ -184,7 +184,10 @@
 }
 
 /* ── Responsive utilities ── */
+.show-mobile-icon { display: none; }
+
 @media (max-width: 640px) {
   .hide-mobile { display: none !important; }
+  .show-mobile-icon { display: flex !important; }
   .show-mobile { display: flex !important; }
 }

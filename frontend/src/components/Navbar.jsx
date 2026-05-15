@@ -2,8 +2,6 @@ import { useRef } from "react";
 import PropTypes from "prop-types";
 import {
   MagnifyingGlassIcon,
-  BellIcon,
-  Cog6ToothIcon,
   XMarkIcon,
   Bars3Icon,
   ArrowRightStartOnRectangleIcon,
@@ -31,11 +29,11 @@ export default function Navbar({
 
   const displayName = [user?.prenom, user?.nom].filter(Boolean).join(" ");
   const initiale = user?.prenom?.charAt(0).toUpperCase() || "?";
+
   const handleFocus = () => {
     if (searchWrapperRef.current) {
       searchWrapperRef.current.style.borderColor = "rgba(61,124,255,0.6)";
-      searchWrapperRef.current.style.boxShadow =
-        "0 0 0 3px rgba(61,124,255,0.15)";
+      searchWrapperRef.current.style.boxShadow = "0 0 0 3px rgba(61,124,255,0.15)";
       searchWrapperRef.current.style.background = "rgba(61,124,255,0.07)";
     }
   };
@@ -96,15 +94,13 @@ export default function Navbar({
               {LABELS[page]}
             </span>
           </div>
-          <div
-            style={{ fontSize: "clamp(16px, 4vw, 22px)", fontWeight: "700" }}
-          >
+          <div style={{ fontSize: "clamp(16px, 4vw, 22px)", fontWeight: "700" }}>
             {LABELS[page]}
           </div>
         </div>
       </div>
 
-      {/* RIGHT — recherche + icônes */}
+      {/* RIGHT — recherche + bouton */}
       <div
         style={{
           display: "flex",
@@ -132,12 +128,7 @@ export default function Navbar({
           }}
         >
           <MagnifyingGlassIcon
-            style={{
-              width: "15px",
-              height: "15px",
-              opacity: 0.5,
-              flexShrink: 0,
-            }}
+            style={{ width: "15px", height: "15px", opacity: 0.5, flexShrink: 0 }}
           />
           <input
             value={search}
@@ -157,13 +148,7 @@ export default function Navbar({
           {search && (
             <XMarkIcon
               onClick={() => setSearch("")}
-              style={{
-                width: "14px",
-                height: "14px",
-                cursor: "pointer",
-                opacity: 0.4,
-                flexShrink: 0,
-              }}
+              style={{ width: "14px", height: "14px", cursor: "pointer", opacity: 0.4, flexShrink: 0 }}
             />
           )}
         </div>
@@ -224,38 +209,31 @@ export default function Navbar({
               {displayName}
             </span>
             <ArrowRightStartOnRectangleIcon
-              style={{
-                width: "14px",
-                height: "14px",
-                color: "rgba(200,210,255,0.35)",
-                flexShrink: 0,
-              }}
+              style={{ width: "14px", height: "14px", color: "rgba(200,210,255,0.35)", flexShrink: 0 }}
             />
           </div>
         ) : (
-            <button
-              onClick={onLoginClick}
-              style={{
-                background: "linear-gradient(97deg,#3d7cff,#8b5cf6)",
-                border: "none",
-                borderRadius: "10px",
-                color: "#fff",
-                fontSize: "13px",
-                fontWeight: "700",
-                padding: "9px 18px",
-                cursor: "pointer",
-                flexShrink: 0,
-                boxShadow: "0 4px 16px rgba(61,124,255,0.35)",
-                whiteSpace: "nowrap",
-                minWidth: "fit-content",
-              }}
-            >
-              <span className="hide-mobile">Se connecter</span>
-              <span className="show-mobile" style={{ display: "none" }}>
-                <ArrowRightStartOnRectangleIcon style={{ width: "18px", height: "18px" }} />
-              </span>
-            </button>
-          )}
+          <button
+            onClick={onLoginClick}
+            style={{
+              background: "linear-gradient(97deg,#3d7cff,#8b5cf6)",
+              border: "none",
+              borderRadius: "10px",
+              color: "#fff",
+              fontSize: "13px",
+              fontWeight: "700",
+              padding: "9px 18px",
+              cursor: "pointer",
+              flexShrink: 0,
+              boxShadow: "0 4px 16px rgba(61,124,255,0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span className="hide-mobile">Se connecter</span>
+          </button>
+        )}
       </div>
     </nav>
   );
