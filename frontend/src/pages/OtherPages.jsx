@@ -524,7 +524,7 @@ export function FavoritesPage({
         }}
       >
         <Tab
-          label=" Favoris"
+          label="Favoris"
           active={tab === "favorites"}
           onClick={() => setTab("favorites")}
           count={favorites.length}
@@ -683,7 +683,7 @@ FavoritesPage.propTypes = {
   removeMovieFromList: PropTypes.func,
 };
 
-// ── Tendances ─────────────────────────────────────────────────────────────────
+// ── Tendances ────────────────────────────────────────────
 export function TrendingPage({ onMovieClick, favorites, onToggleFav }) {
   const [movies, setMovies] = useState([]);
 
