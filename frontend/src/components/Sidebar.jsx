@@ -13,9 +13,9 @@ import {
 
 const NAV = [
   { icon: HomeIcon, label: "Accueil", page: "home" },
-  { icon: ChartBarIcon, label: "Dashboard", page: "data" },
   { icon: FilmIcon, label: "Catalogue", page: "catalogue" },
   { icon: HeartIcon, label: "Favoris", page: "favorites" },
+  { icon: ChartBarIcon, label: "Dashboard", page: "data" },
   { icon: FireIcon, label: "Tendances", page: "trending" },
   { icon: Cog6ToothIcon, label: "Paramètres", page: "settings" },
 ];

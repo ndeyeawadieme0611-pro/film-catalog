@@ -300,7 +300,8 @@ function ListRow({ m, onClick, isFav, onToggleFav }) {
               fontSize: "11px",
             }}
           >
-        Film</span>
+            Film
+          </span>
         </div>
       </div>
 
@@ -322,7 +323,7 @@ function ListRow({ m, onClick, isFav, onToggleFav }) {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          onToggleFav(m.id);
+          onToggleFav(m);
         }}
         style={{
           background: "none",
@@ -351,20 +352,21 @@ function normalizeMovie(m) {
   return {
     id: m.id,
     title: m.title,
-    year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
-    rating: m.vote_average || 0,
+    year: m.release_date
+      ? Number(m.release_date.slice(0, 4))
+      : (m.year ?? null),
+    rating: m.vote_average ?? m.rating ?? 0,
     poster: m.poster_path
       ? `${IMAGE_BASE_URL}${m.poster_path}`
-      : "/placeholder-poster.png",
+      : m.poster || "/placeholder-poster.png",
     overview: m.overview,
     genre_ids: m.genre_ids || [],
-    genre: m.genre_ids?.[0] || null,
-    director: "",
-    cast: [],
+    genre: m.genre_ids?.[0] || m.genre || null,
+    director: m.director || "",
+    cast: m.cast || [],
     raw: m,
   };
 }
-
 /* ══════════════════════════════════════════
    PAGE PRINCIPALE
 ══════════════════════════════════════════ */
@@ -389,67 +391,69 @@ export default function CataloguePage({
   const [genres, setGenres] = useState([{ value: "Tous", label: "Tous" }]);
   const [years, setYears] = useState(["Toutes"]);
 
-useEffect(() => {
-  setPage(1);
-}, [search, genre, year, excFut, sortBy]);
+  useEffect(() => {
+    setPage(1);
+  }, [search, genre, year, excFut, sortBy]);
 
-useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-  async function loadMovies() {
-    try {
-      setLoading(true);
-      setError(null);
+    async function loadMovies() {
+      try {
+        setLoading(true);
+        setError(null);
 
-      let data;
+        let data;
 
-      if (search && search.trim()) {
-        data = await searchMovies(search.trim(), page);
-      } else {
-        data = await discoverMovies({
-          page,
-          year: year !== "Toutes" ? year : undefined,
-          genre: genre !== "Tous" ? genre : undefined,
-          person: person.trim() ? person.trim() : undefined,
-        });
+        if (search && search.trim()) {
+          data = await searchMovies(search.trim(), page);
+        } else {
+          data = await discoverMovies({
+            page,
+            year: year !== "Toutes" ? year : undefined,
+            genre: genre !== "Tous" ? genre : undefined,
+            person: person.trim() ? person.trim() : undefined,
+          });
+        }
+
+        const list = Array.isArray(data)
+          ? data
+          : data.movies || data.results || [];
+
+        if (!cancelled) {
+          setMovies(list.map(normalizeMovie));
+          setApiTotalPages(data.totalPages || data.total_pages || 1);
+        }
+      } catch {
+        if (!cancelled) {
+          setError("Impossible de charger les films.");
+          setMovies([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-
-      const list = Array.isArray(data) ? data : data.movies || data.results || [];
-
-      if (!cancelled) {
-        setMovies(list.map(normalizeMovie));
-        setApiTotalPages(data.totalPages || data.total_pages || 1);
-      }
-    } catch {
-      if (!cancelled) {
-        setError("Impossible de charger les films.");
-        setMovies([]);
-      }
-    } finally {
-      if (!cancelled) setLoading(false);
     }
-  }
 
-  loadMovies();
+    loadMovies();
 
-  return () => {
-    cancelled = true;
-  };
-}, [search, page, genre, year, person]);
+    return () => {
+      cancelled = true;
+    };
+  }, [search, page, genre, year, person]);
 
-useEffect(() => {
-  async function loadFilters() {
-    const [genresData, yearsData] = await Promise.all([
-      fetchGenres(),
-      fetchYears(),
-    ]);
+  useEffect(() => {
+    async function loadFilters() {
+      const [genresData, yearsData] = await Promise.all([
+        fetchGenres(),
+        fetchYears(),
+      ]);
 
-    setGenres(genresData);
-    setYears(yearsData);
-  }
+      setGenres(genresData);
+      setYears(yearsData);
+    }
 
-  loadFilters();
-}, []);
+    loadFilters();
+  }, []);
 
   const resetFilters = useCallback(() => {
     setGenre("Tous");
@@ -869,9 +873,7 @@ useEffect(() => {
       )}
 
       {error && (
-        <div style={{ color: "#ff6b6b", marginBottom: "20px" }}>
-          {error}
-        </div>
+        <div style={{ color: "#ff6b6b", marginBottom: "20px" }}>{error}</div>
       )}
 
       {!loading && filtered.length === 0 ? (
@@ -891,7 +893,7 @@ useEffect(() => {
               key={m.id}
               movie={m}
               onClick={() => onMovieClick(m)}
-              isFav={favorites.includes(m.id)}
+              isFav={favorites.some((fav) => fav.id === m.id)}
               onToggleFav={onToggleFav}
             />
           ))}
@@ -903,7 +905,7 @@ useEffect(() => {
               key={m.id}
               m={m}
               onClick={() => onMovieClick(m)}
-              isFav={favorites.includes(m.id)}
+              isFav={favorites.some((fav) => fav.id === m.id)}
               onToggleFav={onToggleFav}
             />
           ))}
@@ -919,6 +921,8 @@ useEffect(() => {
             alignItems: "center",
             gap: "6px",
             marginTop: "36px",
+            flexWrap: "wrap",
+            maxWidth: "100%",
           }}
         >
           <button
@@ -938,16 +942,29 @@ useEffect(() => {
             ←
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(
-              (p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1,
-            )
-            .reduce((acc, p, idx, arr) => {
-              if (idx > 0 && p - arr[idx - 1] > 1) acc.push("...");
-              acc.push(p);
-              return acc;
-            }, [])
-            .map((p, i) =>
+          {(() => {
+            const pages = new Set();
+
+            pages.add(1);
+            pages.add(totalPages);
+
+            for (let p = page - 1; p <= page + 1; p++) {
+              if (p > 1 && p < totalPages) {
+                pages.add(p);
+              }
+            }
+
+            const sortedPages = Array.from(pages).sort((a, b) => a - b);
+            const items = [];
+
+            sortedPages.forEach((p, index) => {
+              if (index > 0 && p - sortedPages[index - 1] > 1) {
+                items.push("...");
+              }
+              items.push(p);
+            });
+
+            return items.map((p, i) =>
               p === "..." ? (
                 <span
                   key={`dot-${i}`}
@@ -964,8 +981,9 @@ useEffect(() => {
                   key={p}
                   onClick={() => setPage(p)}
                   style={{
-                    width: "34px",
+                    minWidth: "34px",
                     height: "34px",
+                    padding: "0 10px",
                     borderRadius: "9px",
                     border: `1px solid ${p === page ? "rgba(61,124,255,0.5)" : "rgba(255,255,255,0.08)"}`,
                     background:
@@ -975,12 +993,14 @@ useEffect(() => {
                     cursor: "pointer",
                     fontSize: "13px",
                     transition: "all 0.15s",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {p}
                 </button>
               ),
-            )}
+            );
+          })()}
 
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

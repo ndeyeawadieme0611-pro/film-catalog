@@ -26,18 +26,18 @@ const GENRES = [
   { value: 27, label: "Horror" },
   { value: 16, label: "Animation" },
 ];
-
 function normalizeMovie(m) {
   const genreId = m.genre_ids?.[0] || null;
-
   return {
     id: m.id,
     title: m.title,
-    year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
-    rating: m.vote_average || 0,
+    year: m.release_date
+      ? Number(m.release_date.slice(0, 4))
+      : (m.year ?? null),
+    rating: m.vote_average ?? m.rating ?? 0,
     poster: m.poster_path
       ? `${IMAGE_BASE_URL}${m.poster_path}`
-      : "/placeholder-poster.png",
+      : m.poster || "/placeholder-poster.png",
     overview: m.overview,
     genre_ids: m.genre_ids || [],
     genre: GENRES.find((g) => g.value === genreId)?.label || "Film",
@@ -170,7 +170,7 @@ function PosterCard({ movie, onClick, isFav, onToggleFav }) {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onToggleFav(movie.id);
+            onToggleFav(movie);
           }}
           style={{
             border: "none",
@@ -370,7 +370,7 @@ function GenreRow({ genre, movies, onMovieClick, favorites, onToggleFav }) {
             key={m.id}
             movie={m}
             onClick={onMovieClick}
-            isFav={favorites.includes(m.id)}
+            isFav={favorites.some((fav) => fav.id === m.id)}
             onToggleFav={onToggleFav}
           />
         ))}
@@ -572,9 +572,27 @@ export default function HomePage({ onMovieClick, favorites, onToggleFav }) {
 
   useEffect(() => {
     async function loadMovies() {
-      const data = await fetchMovies({ page: 1 });
-      const list = data.movies || data.results || [];
-      setMovies(list.map(normalizeMovie));
+      const pages = await Promise.allSettled([
+        fetchMovies({ page: 1 }),
+        fetchMovies({ page: 2 }),
+        fetchMovies({ page: 3 }),
+        fetchMovies({ page: 4 }),
+        fetchMovies({ page: 5 }),
+      ]);
+
+      const list = pages
+        .filter((p) => p.status === "fulfilled")
+        .flatMap((p) => p.value.movies || []);
+
+      // Dédoublonner par id
+      const seen = new Set();
+      const unique = list.filter((m) => {
+        if (seen.has(m.id)) return false;
+        seen.add(m.id);
+        return true;
+      });
+
+      setMovies(unique.map(normalizeMovie));
     }
 
     loadMovies();

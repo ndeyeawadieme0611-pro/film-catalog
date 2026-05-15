@@ -3,14 +3,22 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
+from app.schemas.auth import (
+    RegisterRequest,
+    LoginRequest,
+    TokenResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
 from app.services.auth import (
     hash_password,
     verify_password,
     create_access_token,
     create_email_verification_token,
+    create_password_reset_token,
     decode_token,
     send_verification_email,
+    send_reset_password_email,
 )
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -88,6 +96,44 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     token = create_access_token({"sub": user.email})
 
     return {
-        "access_token": token,
-        "token_type": "bearer",
-    }
+    "access_token": token,
+    "token_type": "bearer",
+    "email": user.email,
+    "nom": user.nom,
+    "prenom": user.prenom,
+}
+
+
+@router.post("/forgot-password")
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == payload.email).first()
+
+    if user and user.is_active:
+        token = create_password_reset_token(user.email)
+        send_reset_password_email(user.email, token)
+
+    return {"message": "Si cet email existe, un lien de réinitialisation a été envoyé."}
+
+
+@router.post("/reset-password")
+def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    decoded = decode_token(payload.token)
+
+    if decoded.get("type") != "password_reset":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token invalide",
+        )
+
+    user = db.query(User).filter(User.email == decoded.get("sub")).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Utilisateur introuvable",
+        )
+
+    user.hashed_password = hash_password(payload.new_password)
+    db.commit()
+
+    return {"message": "Mot de passe réinitialisé avec succès."}

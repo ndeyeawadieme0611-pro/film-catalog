@@ -6,6 +6,7 @@ import {
   Cog6ToothIcon,
   XMarkIcon,
   Bars3Icon,
+  ArrowRightStartOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 
 const LABELS = {
@@ -17,9 +18,19 @@ const LABELS = {
   settings: "Paramètres",
 };
 
-export default function Navbar({ search, setSearch, page, onMenuClick }) {
+export default function Navbar({
+  search,
+  setSearch,
+  page,
+  onMenuClick,
+  user,
+  onLogout,
+  onLoginClick,
+}) {
   const searchWrapperRef = useRef(null);
 
+  const displayName = [user?.prenom, user?.nom].filter(Boolean).join(" ");
+  const initiale = user?.prenom?.charAt(0).toUpperCase() || "?";
   const handleFocus = () => {
     if (searchWrapperRef.current) {
       searchWrapperRef.current.style.borderColor = "rgba(61,124,255,0.6)";
@@ -100,7 +111,7 @@ export default function Navbar({ search, setSearch, page, onMenuClick }) {
           alignItems: "center",
           gap: "10px",
           width: "100%",
-          maxWidth: "420px",
+          maxWidth: "520px",
           justifyContent: "flex-end",
         }}
       >
@@ -157,53 +168,90 @@ export default function Navbar({ search, setSearch, page, onMenuClick }) {
           )}
         </div>
 
-        {/* Icônes actions */}
-        {[
-          { Icon: BellIcon, badge: true, title: "Notifications" },
-          { Icon: Cog6ToothIcon, badge: false, title: "Paramètres" },
-        ].map(({ Icon, badge, title }, i) => (
+        {/* Avatar connecté / bouton Se connecter */}
+        {user ? (
           <div
-            key={i}
-            title={title}
+            onClick={onLogout}
+            title="Se déconnecter"
             style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "10px",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              gap: "8px",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: "10px",
+              padding: "4px 10px 4px 4px",
               cursor: "pointer",
-              position: "relative",
               flexShrink: 0,
               transition: "background 0.15s, border-color 0.15s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.1)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+              e.currentTarget.style.background = "rgba(239,68,68,0.1)";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "rgba(255,255,255,0.06)";
               e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
             }}
           >
-            <Icon style={{ width: "17px", height: "17px" }} />
-            {badge && (
-              <div
-                style={{
-                  width: "7px",
-                  height: "7px",
-                  borderRadius: "50%",
-                  background: "#3d7cff",
-                  position: "absolute",
-                  top: "6px",
-                  right: "6px",
-                }}
-              />
-            )}
+            <div
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, #3d7cff, #8b5cf6)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "11px",
+                fontWeight: "700",
+                color: "#fff",
+                flexShrink: 0,
+              }}
+            >
+              {initiale}
+            </div>
+            <span
+              style={{
+                fontSize: "12px",
+                color: "rgba(200,210,255,0.65)",
+                maxWidth: "90px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {displayName}
+            </span>
+            <ArrowRightStartOnRectangleIcon
+              style={{
+                width: "14px",
+                height: "14px",
+                color: "rgba(200,210,255,0.35)",
+                flexShrink: 0,
+              }}
+            />
           </div>
-        ))}
+        ) : (
+          <button
+            onClick={onLoginClick}
+            style={{
+              background: "linear-gradient(97deg,#3d7cff,#8b5cf6)",
+              border: "none",
+              borderRadius: "10px",
+              color: "#fff",
+              fontSize: "13px",
+              fontWeight: "700",
+              padding: "9px 18px",
+              cursor: "pointer",
+              flexShrink: 0,
+              boxShadow: "0 4px 16px rgba(61,124,255,0.35)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Se connecter
+          </button>
+        )}
       </div>
     </nav>
   );
@@ -214,4 +262,7 @@ Navbar.propTypes = {
   setSearch: PropTypes.func.isRequired,
   page: PropTypes.string.isRequired,
   onMenuClick: PropTypes.func.isRequired,
+  user: PropTypes.object,
+  onLogout: PropTypes.func,
+  onLoginClick: PropTypes.func,
 };
