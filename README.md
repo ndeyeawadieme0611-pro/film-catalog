@@ -56,8 +56,8 @@ CineDB est une application web full-stack permettant de parcourir, rechercher et
 | Membre | Rôle |
 |--------|------|
 | Ndeye Awa DIEME | DevOps: Docker, Kubernetes, CI/CD |
-| [Coéquipier 2] | Backend: FastAPI, Auth JWT, TMDB |
-| [Coéquipier 3] | Frontend: React, pages, composants |
+| Hafsa AKZOUN | Backend: FastAPI, Auth JWT, TMDB, Test Docker |
+| Oum LAMRABET | Frontend: React, pages, composants, Test Docker |
 
 **Encadrant :** Binh-Minh Bui-Xuan
 
