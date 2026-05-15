@@ -182,3 +182,9 @@
     border-right-color: var(--border);
   }
 }
+
+/* ── Responsive utilities ── */
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: flex !important; }
+}

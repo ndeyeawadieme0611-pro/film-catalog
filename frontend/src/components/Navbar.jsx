@@ -233,25 +233,29 @@ export default function Navbar({
             />
           </div>
         ) : (
-          <button
-            onClick={onLoginClick}
-            style={{
-              background: "linear-gradient(97deg,#3d7cff,#8b5cf6)",
-              border: "none",
-              borderRadius: "10px",
-              color: "#fff",
-              fontSize: "13px",
-              fontWeight: "700",
-              padding: "9px 18px",
-              cursor: "pointer",
-              flexShrink: 0,
-              boxShadow: "0 4px 16px rgba(61,124,255,0.35)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Se connecter
-          </button>
-        )}
+            <button
+              onClick={onLoginClick}
+              style={{
+                background: "linear-gradient(97deg,#3d7cff,#8b5cf6)",
+                border: "none",
+                borderRadius: "10px",
+                color: "#fff",
+                fontSize: "13px",
+                fontWeight: "700",
+                padding: "9px 18px",
+                cursor: "pointer",
+                flexShrink: 0,
+                boxShadow: "0 4px 16px rgba(61,124,255,0.35)",
+                whiteSpace: "nowrap",
+                minWidth: "fit-content",
+              }}
+            >
+              <span className="hide-mobile">Se connecter</span>
+              <span className="show-mobile" style={{ display: "none" }}>
+                <ArrowRightStartOnRectangleIcon style={{ width: "18px", height: "18px" }} />
+              </span>
+            </button>
+          )}
       </div>
     </nav>
   );
