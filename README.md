@@ -10,6 +10,13 @@ CineDB est une application web full-stack permettant de parcourir, rechercher et
 
 ---
 
+## Démo en ligne
+
+| Service | URL |
+|---------|-----|
+| Application | https://film-catalog-one.vercel.app |
+| API Swagger | https://film-catalog-production-cf2f.up.railway.app/docs |
+
 ## Architecture
 
 ```
