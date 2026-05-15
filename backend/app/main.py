@@ -22,6 +22,7 @@ app.add_middleware(
         "http://localhost:80",
         "http://localhost:3000",
         "http://localhost:5173",
+        "https://film-catalog-one.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
