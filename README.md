@@ -24,6 +24,17 @@ CineDB est une application web full-stack permettant de parcourir, rechercher et
 > Pour tester l'authentification complète, lancez l'application en local 
 > avec Docker Compose (voir instructions ci-dessous).
 
+## Lancement rapide
+
+### Avec Docker Compose
+```bash
+./run.sh
+```
+
+### Avec Kubernetes
+```bash
+./run-k8s.sh
+```
 ## Architecture
 
 ```
