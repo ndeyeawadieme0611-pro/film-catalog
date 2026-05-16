@@ -62,9 +62,9 @@ async def tmdb_get(endpoint: str, params: dict | None = None):
     if redis_client:
         try:
             redis_client.setex(cache_key, CACHE_TTL, json.dumps(data))
-            print(f"✅ Cache set: {cache_key}")
+            print(f"Cache set: {cache_key}")
         except Exception as e:
-            print(f"⚠️ Redis write error: {e}")
+            print(f"Redis write error: {e}")
 
     return data
 
