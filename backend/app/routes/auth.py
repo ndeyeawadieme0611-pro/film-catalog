@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -23,6 +24,7 @@ from app.services.auth import (
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+skip_email = os.getenv("SKIP_EMAIL_VERIFICATION", "false").lower() == "true"
 
 @router.post("/register")
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
@@ -35,22 +37,23 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         )
 
     user = User(
-        nom=payload.nom,
-        prenom=payload.prenom,
-        email=payload.email,
-        hashed_password=hash_password(payload.password),
-        is_active=False,
+    nom=payload.nom,
+    prenom=payload.prenom,
+    email=payload.email,
+    hashed_password=hash_password(payload.password),
+    is_active=skip_email,
     )
 
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    token = create_email_verification_token(user.email)
-    send_verification_email(user.email, token)
+    if not skip_email:
+        token = create_email_verification_token(user.email)
+        send_verification_email(user.email, token)
+        return {"message": "Compte créé. Vérifiez votre email pour l'activer."}
 
-    return {"message": "Compte créé. Vérifiez votre email pour l'activer."}
-
+    return {"message": "Compte créé avec succès. Vous pouvez vous connecter."}
 
 @router.get("/verify-email")
 def verify_email(token: str, db: Session = Depends(get_db)):
