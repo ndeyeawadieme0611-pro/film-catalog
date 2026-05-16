@@ -38,7 +38,7 @@ docker-compose build
 # Appliquer les manifests Kubernetes
 echo ""
 echo "Application des manifests Kubernetes..."
-kubectl apply -f k8s/
+kubectl apply -R -f k8s/
 
 # Attendre que PostgreSQL et Redis soient prêts en premier
 echo ""
