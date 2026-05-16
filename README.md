@@ -17,6 +17,13 @@ CineDB est une application web full-stack permettant de parcourir, rechercher et
 | Application | https://film-catalog-one.vercel.app |
 | API Swagger | https://film-catalog-production-cf2f.up.railway.app/docs |
 
+> ⚠️ **Note** : L'authentification (inscription/connexion) n'est pas disponible 
+> en production car l'envoi d'emails est bloqué par l'hébergeur gratuit. 
+> Toutes les autres fonctionnalités (catalogue, recherche, filtres, films populaires) 
+> sont pleinement opérationnelles.
+> Pour tester l'authentification complète, lancez l'application en local 
+> avec Docker Compose (voir instructions ci-dessous).
+
 ## Architecture
 
 ```
