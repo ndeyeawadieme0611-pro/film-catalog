@@ -4,7 +4,6 @@ from email.message import EmailMessage
 
 
 SMTP_HOST = os.getenv("SMTP_HOST")
-BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
@@ -12,7 +11,7 @@ SMTP_FROM = os.getenv("SMTP_FROM", SMTP_USER)
 
 
 def send_verification_email(to_email: str, token: str):
-    verification_link = f"{BASE_URL}/api/auth/verify-email?token={token}"
+    verification_link = f"http://localhost:8000/api/auth/verify-email?token={token}"
 
     if not SMTP_HOST or not SMTP_USER or not SMTP_PASSWORD:
         print(f"EMAIL VERIFICATION LINK: {verification_link}")
