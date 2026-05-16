@@ -207,27 +207,6 @@ export default function LoginPage({
           />
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-          {["Google", "GitHub"].map((name) => (
-            <button
-              key={name}
-              style={{
-                flex: 1,
-                padding: "10px",
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: "10px",
-                color: "rgba(200,210,255,0.5)",
-                fontSize: "13px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
-            >
-              {name}
-            </button>
-          ))}
-        </div>
-
         <div
           style={{
             textAlign: "center",
