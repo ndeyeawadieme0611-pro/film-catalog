@@ -22,6 +22,12 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+# Créer le .env frontend si absent
+if [ ! -f frontend/.env ]; then
+    echo "VITE_API_URL=/api" > frontend/.env
+    echo "Fichier frontend/.env cree."
+fi
+
 echo "Prerequis verifies."
 echo ""
 echo "Demarrage des services..."
