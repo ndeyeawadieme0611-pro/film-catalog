@@ -249,6 +249,26 @@ film-catalog/
 
 ---
 
+## Cache Redis
+
+L'application intègre Redis comme système de cache pour optimiser les performances :
+
+- Les réponses de l'API TMDB sont mises en cache pendant **10 minutes**
+- Au premier appel → les données sont récupérées depuis TMDB et stockées dans Redis
+- Aux appels suivants → les données sont servies directement depuis Redis (Cache hit)
+- Si Redis est indisponible → l'application continue de fonctionner normalement (fallback)
+
+**Vérifier que Redis fonctionne :**
+```bash
+# Docker Compose
+docker exec filmcatalog-redis redis-cli ping
+# Réponse : PONG
+
+# Kubernetes
+kubectl exec -it deployment/redis -- redis-cli ping
+# Réponse : PONG
+```
+
 ## Pipeline CI/CD
 
 Le pipeline GitHub Actions se déclenche à chaque push sur `main` et exécute :
