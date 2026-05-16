@@ -34,6 +34,9 @@ echo ""
 echo "Construction des images Docker dans le contexte Minikube..."
 eval $(minikube docker-env)
 docker-compose build
+docker tag film-catalog_backend:latest film-catalog_backend:latest 2>/dev/null || true
+docker tag $(docker images --format "{{.Repository}}:{{.Tag}}" | grep backend | head -1) film-catalog_backend:latest
+docker tag $(docker images --format "{{.Repository}}:{{.Tag}}" | grep frontend | head -1) film-catalog_frontend:latest
 
 # Appliquer les manifests Kubernetes
 echo ""
