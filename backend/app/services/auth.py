@@ -54,7 +54,7 @@ def decode_token(token: str):
 
 def send_verification_email(to_email: str, token: str):
     backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
-    verification_link = f"{backend_url}/auth/verify-email?token={token}"
+    verification_link = f"{backend_url}/api/auth/verify-email?token={token}"
 
     smtp_host = os.getenv("SMTP_HOST")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
