@@ -35,6 +35,12 @@ CineDB est une application web full-stack permettant de parcourir, rechercher et
 ```bash
 ./run-k8s.sh
 ```
+> **Note :** Au premier lancement, le backend peut prendre quelques secondes 
+> supplémentaires à démarrer après le frontend. Si l'application s'affiche 
+> mais que les films ne chargent pas, attendez quelques secondes et rafraîchissez 
+> la page (F5).
+
+
 ## Architecture
 
 ```
