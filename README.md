@@ -14,11 +14,11 @@ CineDB est une application web full-stack permettant de parcourir, rechercher et
 
 ## 🎬 Démonstration vidéo
 
-<video src="./demo.mov" controls width="100%"></video>
+<video src="./demo.mp4" controls width="100%"></video>
 
-[Voir la vidéo de démonstration](./demo.mov)
+[▶️ Voir la vidéo de démonstration](./demo.mp4)
 
-> Si la vidéo ne s'affiche pas directement sur GitHub, cliquez sur le lien ci-dessus pour la télécharger ou l'ouvrir.
+> Si la vidéo ne s'affiche pas directement sur GitHub, cliquez sur le lien ci-dessus pour l'ouvrir.
 
 ## Démo en ligne
 
