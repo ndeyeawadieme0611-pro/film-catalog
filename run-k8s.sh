@@ -86,6 +86,14 @@ echo ""
 echo "Etat des services :"
 kubectl get services
 
+echo ""
+echo "Ingress :"
+kubectl get ingress
+
+echo ""
+echo "HPA :"
+kubectl get hpa
+
 # Récupérer l'URL du frontend
 OS=$(uname)
 if [ "$OS" = "Darwin" ]; then
