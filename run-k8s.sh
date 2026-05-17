@@ -22,6 +22,12 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
+# Créer le .env frontend si absent
+if [ ! -f frontend/.env ]; then
+    echo "VITE_API_URL=/api" > frontend/.env
+    echo "Fichier frontend/.env cree."
+fi
+
 echo "Prerequis verifies."
 echo ""
 
@@ -81,11 +87,21 @@ echo "Etat des services :"
 kubectl get services
 
 # Récupérer l'URL du frontend
-FRONTEND_URL=$(minikube service frontend --url)
-
-echo ""
-echo "============================================"
-echo "CineDB est pret sur Kubernetes !"
-echo ""
-echo "Application  : $FRONTEND_URL"
-echo "============================================"
+OS=$(uname)
+if [ "$OS" = "Darwin" ]; then
+    echo ""
+    echo "Sur Mac, ouvrez un nouveau terminal et lancez :"
+    echo "minikube service frontend"
+    echo ""
+    echo "============================================"
+    echo "CineDB est pret sur Kubernetes !"
+    echo "============================================"
+else
+    FRONTEND_URL=$(minikube service frontend --url)
+    echo ""
+    echo "============================================"
+    echo "CineDB est pret sur Kubernetes !"
+    echo ""
+    echo "Application  : $FRONTEND_URL"
+    echo "============================================"
+fi
