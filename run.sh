@@ -31,7 +31,7 @@ fi
 echo "Prerequis verifies."
 echo ""
 echo "Demarrage des services..."
-docker-compose up -d
+docker-compose up --build -d
 
 echo ""
 echo "Attente du demarrage des services..."
