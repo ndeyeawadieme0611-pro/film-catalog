@@ -67,8 +67,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Deploy frontend to Vercel
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_WEBHOOK }}"
+
       - name: Deploy notification
         run: |
-          echo "Build terminé - Images prêtes sur Docker Hub"
+          echo "Build termine - Images poussees sur Docker Hub"
           echo "Backend: ${{ secrets.DOCKER_USERNAME }}/film-catalog-backend:latest"
           echo "Frontend: ${{ secrets.DOCKER_USERNAME }}/film-catalog-frontend:latest"
+          echo "Deploiement Vercel declenche"
+          echo "Railway se redeploit automatiquement via Wait for CI"
